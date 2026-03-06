@@ -1,0 +1,164 @@
+#################
+## MAC Crap
+#################
+.DS_Store
+
+#################
+## General Logging
+#################
+*.log
+*.log.*
+*.logs
+*.logs.*
+
+**/log
+**/log.*
+**/logs/*
+**/logs./*
+
+#################
+## Terraform
+#################
+.terraform
+*.tfstate
+.terraform.lock.hcl
+*.backup
+
+#################
+## Maven
+#################
+target/
+
+#################
+## General Java Builds
+#################
+classes/
+build/
+
+
+#################
+## IntelliJ
+#################
+*.iml
+**/.idea/*
+
+#################
+## Eclipse
+#################
+
+*.pydevproject
+.project
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+
+##############
+## UltraEdit    
+##############
+*.bak
+
+##############
+# External tool builders
+##############
+.externalToolBuilders/
+
+##############
+# Locally stored "Eclipse launch configurations"
+##############
+*.launch
+
+##############
+# Click-Once directory
+##############
+publish/
+
+##############
+# Publish Web Output
+##############
+*.Publish.xml
+*.pubxml
+*.publishproj
+
+##############
+# NuGet Packages Directory
+##############
+## TODO: If you have NuGet Package Restore enabled, uncomment the next line
+#packages/
+
+##############
+# Windows Azure Build Output
+##############
+csx
+*.build.csdef
+
+##############
+# Windows Store app package directory
+##############
+AppPackages/
+
+##############
+# Others
+##############
+sql/
+*.Cache
+ClientBin/
+[Ss]tyle[Cc]op.*
+~$*
+*~
+*.dbmdl
+*.[Pp]ublish.xml
+*.pfx
+*.publishsettings
+
+##############
+# Windows image file caches
+##############
+Thumbs.db
+ehthumbs.db
+
+##############
+# Folder config file
+##############
+Desktop.ini
+
+##############
+# Recycle Bin used on file shares
+##############
+$RECYCLE.BIN/
+
+#############
+## Python
+#############
+*.py[cod]
+
+##############
+# Python Packages
+##############
+*.egg
+*.egg-info
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+
+##############
+# Gradle
+##############
+.gradle/*
+
+##############
+# VSCode
+##############
+*/.vscode/*
