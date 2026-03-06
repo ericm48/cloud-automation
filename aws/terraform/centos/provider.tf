@@ -1,10 +1,6 @@
 #
-# Base provider.tf   us-west-2
+# provider.tf
 #
-
-provider "aws" {
-  region = "us-west-2" # Replace with your desired AWS region
-}
 
 terraform {
   required_providers {
@@ -15,4 +11,7 @@ terraform {
   }
 }
 
-
+# Configure the AWS Provider with your desired region
+provider "aws" {
+  region = "us-west-2"
+}

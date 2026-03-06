@@ -2,6 +2,13 @@
 # main.tf
 #
 
+# Target Region
+variable "region" {
+  description = "AWS region to deploy resources in"
+  type        = string
+  # default   = "us-west-2"
+}
+
 # Fetch the latest Amazon Linux 2 AMI ID
 
 data "aws_ami" "latest_amazon_linux" {
@@ -19,11 +26,7 @@ data "aws_ami" "latest_amazon_linux" {
   }
 }
 
-variable "region" {
-  description = "AWS region to deploy resources in"
-  type        = string
-  # default   = "us-west-2"
-}
+# Prompts
 
 variable "ami" {
   description = "Amazon Machine Image ID for EC2 instance. us-west-2: ami-027951e78de46a00e | eu-west-3: ami-0446057e5961dfab6"
@@ -36,38 +39,18 @@ variable "owner" {
   type        = string
 } 
 
+
 variable "ssh_pubkey" {
   description = "SSH public key for creating tunnel"
   type        = string
 
   # Eric MAC:
-  default      = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEfQoBYa+YTFJ5ijh3iBTKjD/zg2/M13QQbYpEV0SV2A"
+  #default      = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEfQoBYa+YTFJ5ijh3iBTKjD/zg2/M13QQbYpEV0SV2A"
 
   # GPU-JumpBox:
-  #default     = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOKjqORmfRZYOVUnp6K/SdCbryfYkJgb2+1dn6urAUUP" 
+  default     = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOKjqORmfRZYOVUnp6K/SdCbryfYkJgb2+1dn6urAUUP" 
 } 
 
-/*
-# Generate a new SSH private key
-resource "tls_private_key" "ec2_key" {
-  algorithm   = "RSA"
-  rsa_bits    = 4096
-}
-
-# Store the private key in a local file (for immediate use)
-resource "local_file" "ssh_private_key" {
-  content  = tls_private_key.ec2_key.private_key_pem
-  filename = "aws-ec2-ubu-em1.pem"
-  # Ensure the file has correct permissions locally
-  file_permission = "0400"
-}
-
-# Import the public key into AWS
-resource "aws_key_pair" "ec2_key_pair" {
-  key_name   = "ec2-instance-key"
-  public_key = tls_private_key.ec2_key.public_key_openssh
-}
-*/
 
 resource "aws_instance" "ec2_instance" {
   ami           = "${var.ami}"
@@ -107,12 +90,13 @@ resource "aws_instance" "ec2_instance" {
               __EOF__
   
   tags = {
-    Name = "terraform-nkp-tunnel"
+    Name = "centos-nkp-tunnel"
     owner = "${var.owner}"
     createdBy = "${var.owner}"
   }
 }
 
+# Security Group 
 resource "aws_security_group" "nkp_tunnel" {
   name        = "nkp_tunnel_sg"
   description = "Allow communication between HPOC and tunnel"
@@ -124,6 +108,7 @@ resource "aws_security_group" "nkp_tunnel" {
   }
 }
 
+# AWS Networking Stuff (VPC, Ingress, etc)
 resource "aws_vpc_security_group_ingress_rule" "nkp_tunnel_ssh" {
   security_group_id = aws_security_group.nkp_tunnel.id
 
@@ -171,14 +156,16 @@ resource "aws_ec2_managed_prefix_list" "nutanix_networks" {
   max_entries    = 3
 
   entry {
-    cidr        = "192.146.154.0/24"
+    cidr        = "10.38.48.0/24"
     description = "hpoc"
   }
 
+  /*
   entry {
     cidr        = "192.146.155.0/24"
     description = "hpoc"
   }
+  */
 
   tags = {
     owner = "${var.owner}"
