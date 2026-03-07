@@ -78,40 +78,6 @@ resource "aws_instance" "ec2_instance" {
   
   user_data     = file("cloud-init-config.yaml")
 
-  #user_data     = data.cloudinit_config.server_config.rendered
-
-/*
-  user_data = <<-__EOF__
-              #!/bin/bash
-              echo "GatewayPorts yes" >> /etc/ssh/sshd_config
-              systemctl restart sshd
-              apt install -y socat
-
-              # Create systemd service for socat
-              cat <<EOT > /etc/systemd/system/socat.service
-              [Unit]
-              Description=Socat Port Forwarding 443 -> 8443
-              After=network.target
-
-              [Service]
-              ExecStart=/usr/bin/socat TCP-LISTEN:443,reuseaddr,fork TCP:127.0.0.1:8443
-              Restart=always
-              User=root
-
-              [Install]
-              WantedBy=multi-user.target
-              EOT
-              
-              # Reload systemd, enable and start socat service
-              systemctl daemon-reload
-              systemctl enable socat.service
-              systemctl start socat.service
-              curl -Lo /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-              chmod +x /usr/local/bin/kubectl
-              __EOF__
-
-  */
-
   tags = {
     Name = "ubu-nkp-tunnel-em1"
     owner = "${var.owner}"
