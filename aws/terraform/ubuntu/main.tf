@@ -2,13 +2,6 @@
 # main.tf
 #
 
-# Target Region
-variable "region" {
-  description = "AWS region to deploy resources in"
-  type        = string
-  # default   = "us-west-2"
-}
-
 # Fetch the latest Amazon Linux 2 AMI ID
 
 data "aws_ami" "latest_amazon_linux" {
@@ -26,20 +19,31 @@ data "aws_ami" "latest_amazon_linux" {
   }
 }
 
-# Prompts
+# Prompts BEGIN
 
 variable "ami" {
   description = "Amazon Machine Image ID for EC2 instance. us-west-2: ami-0786adace1541ca80 | eu-west-3: ami-0446057e5961dfab6"
   type        = string
   
   # For west MUST use t2.micro ami-0786adace1541ca80.  West cannot have t3.micro  
-  # default   = "ami-0786adace1541ca80"               # AWS Linux 2 Free Tier Eligible - us-west-2
+  default     = "ami-0786adace1541ca80"               # AWS Linux 2 Free Tier Eligible - us-west-2
 } 
 
 variable "owner" {
   description = "tag resource with owner"
   type        = string
+  default     = "ericm"
 } 
+
+# Target Region
+variable "region" {
+  description = "AWS region to deploy resources in"
+  type        = string
+  default     = "us-west-2"
+}
+
+# Prompts END
+
 
 variable "ssh_pubkey" {
   description = "SSH public key for creating tunnel"
@@ -71,9 +75,12 @@ resource "aws_instance" "ec2_instance" {
 
   # Associate the existing key pair by name
   key_name      = data.aws_key_pair.existing_key.key_name
+  
+  user_data     = file("cloud-init-config.yaml")
 
   #user_data     = data.cloudinit_config.server_config.rendered
 
+/*
   user_data = <<-__EOF__
               #!/bin/bash
               echo "GatewayPorts yes" >> /etc/ssh/sshd_config
@@ -102,6 +109,8 @@ resource "aws_instance" "ec2_instance" {
               curl -Lo /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
               chmod +x /usr/local/bin/kubectl
               __EOF__
+
+  */
 
   tags = {
     Name = "ubu-nkp-tunnel-em1"

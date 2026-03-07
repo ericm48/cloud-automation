@@ -1,7 +1,34 @@
 #cloud-config
-users:
-  - name: ${var.new_user_name}
-    shell: /bin/bash
-    sudo: ALL=(ALL) NOPASSWD:ALL
-    ssh-authorized-keys:
-      - ${var.public_key}
+fqdn: ubu-nkp-tunnel-em1
+hostname: ubu-nkp-tunnel-em1
+runcmd:
+  - echo "GatewayPorts yes" >> /etc/ssh/sshd_config
+  - systemctl restart sshd
+  - apt install -y socat
+  # Create systemd service for socat  
+  - echo "[Unit]" > /etc/systemd/system/socat.service
+  - echo "Description=Socat Port Forwarding 443 -> 8443" >> /etc/systemd/system/socat.service
+  - echo "After=network.target" >> /etc/systemd/system/socat.service
+  - echo " " >> /etc/systemd/system/socat.service
+  - echo "[Service]" >> /etc/systemd/system/socat.service
+  - echo "ExecStart=/usr/bin/socat TCP-LISTEN:443,reuseaddr,fork TCP:127.0.0.1:8443" >> /etc/systemd/system/socat.service
+  - echo "Restart=always" >> /etc/systemd/system/socat.service
+  - echo "User=root" >> /etc/systemd/system/socat.service
+  - echo " " >> /etc/systemd/system/socat.service
+  - echo "[Install]" >> /etc/systemd/system/socat.service
+  - echo "WantedBy=multi-user.target" >> /etc/systemd/system/socat.service
+
+  # Reload systemd, enable and start socat service
+  - systemctl daemon-reload
+  - systemctl enable socat.service
+  - systemctl start socat.service
+  - curl -Lo /usr/local/bin/kubectl https://dl.k8s.io/release/v1.34.1/bin/linux/amd64/kubectl
+  - chmod +x /usr/local/bin/kubectl
+  - eject 
+# Package updates
+package_update: true
+package_upgrade: true
+# Install essential packages
+packages:
+  - openssh-server
+  - sudo
