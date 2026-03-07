@@ -5,6 +5,7 @@ runcmd:
   - echo "GatewayPorts yes" >> /etc/ssh/sshd_config
   - systemctl restart sshd
   - apt install -y socat
+
   # Create systemd service for socat  
   - echo "[Unit]" > /etc/systemd/system/socat.service
   - echo "Description=Socat Port Forwarding 443 -> 8443" >> /etc/systemd/system/socat.service
