@@ -1,0 +1,7 @@
+#cloud-config
+users:
+  - name: ${var.new_user_name}
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    ssh-authorized-keys:
+      - ${var.public_key}

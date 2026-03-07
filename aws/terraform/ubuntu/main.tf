@@ -29,16 +29,17 @@ data "aws_ami" "latest_amazon_linux" {
 # Prompts
 
 variable "ami" {
-  description = "Amazon Machine Image ID for EC2 instance. us-west-2: ami-027951e78de46a00e | eu-west-3: ami-0446057e5961dfab6"
+  description = "Amazon Machine Image ID for EC2 instance. us-west-2: ami-0786adace1541ca80 | eu-west-3: ami-0446057e5961dfab6"
   type        = string
-  # default   = "ami-027951e78de46a00e"  # AWS Linux 2 Free Tier Eligible - us-west-2
+  
+  # For west MUST use t2.micro ami-0786adace1541ca80.  West cannot have t3.micro  
+  # default   = "ami-0786adace1541ca80"               # AWS Linux 2 Free Tier Eligible - us-west-2
 } 
 
 variable "owner" {
   description = "tag resource with owner"
   type        = string
 } 
-
 
 variable "ssh_pubkey" {
   description = "SSH public key for creating tunnel"
@@ -51,6 +52,13 @@ variable "ssh_pubkey" {
   default     = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOKjqORmfRZYOVUnp6K/SdCbryfYkJgb2+1dn6urAUUP" 
 } 
 
+#
+# This helps ensure the key pair exists in the correct region before instance creation
+#
+
+data "aws_key_pair" "existing_key" {
+  key_name = "aws-keypair-1" # Replace with your actual key pair name
+}
 
 resource "aws_instance" "ec2_instance" {
   ami           = "${var.ami}"
@@ -58,13 +66,19 @@ resource "aws_instance" "ec2_instance" {
   subnet_id     = "${data.aws_subnets.default_public_subnet.ids[0]}"
   vpc_security_group_ids = [aws_security_group.nkp_tunnel.id]
 
-  key_name      = aws_key_pair.ssh_key.key_name
+  # Old
+  #key_name      = aws_key_pair.ssh_key.key_name
+
+  # Associate the existing key pair by name
+  key_name      = data.aws_key_pair.existing_key.key_name
+
+  #user_data     = data.cloudinit_config.server_config.rendered
 
   user_data = <<-__EOF__
               #!/bin/bash
               echo "GatewayPorts yes" >> /etc/ssh/sshd_config
               systemctl restart sshd
-              yum install -y socat
+              apt install -y socat
 
               # Create systemd service for socat
               cat <<EOT > /etc/systemd/system/socat.service
@@ -88,9 +102,9 @@ resource "aws_instance" "ec2_instance" {
               curl -Lo /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
               chmod +x /usr/local/bin/kubectl
               __EOF__
-  
+
   tags = {
-    Name = "terraform-nkp-tunnel"
+    Name = "ubu-nkp-tunnel-em1"
     owner = "${var.owner}"
     createdBy = "${var.owner}"
   }
@@ -109,29 +123,37 @@ resource "aws_security_group" "nkp_tunnel" {
 }
 
 # AWS Networking Stuff (VPC, Ingress, etc)
+
 resource "aws_vpc_security_group_ingress_rule" "nkp_tunnel_ssh" {
+
   security_group_id = aws_security_group.nkp_tunnel.id
 
-  from_port       = 22
-  to_port         = 22
-  ip_protocol     = "tcp"
-  prefix_list_id  = "${aws_ec2_managed_prefix_list.nutanix_networks.id}"
+  from_port         = 22
+  to_port           = 22
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "0.0.0.0/0"
+
+  # was here before...collides with above...
+  #prefix_list_id    = "${aws_ec2_managed_prefix_list.nutanix_networks.id}"
+
 }
 
 resource "aws_vpc_security_group_ingress_rule" "nkp_tunnel_https" {
+
   security_group_id = aws_security_group.nkp_tunnel.id
 
-  from_port       = 443
-  to_port         = 443
-  ip_protocol     = "tcp"
-  cidr_ipv4 = "0.0.0.0/0"
+  from_port         = 443
+  to_port           = 443
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "0.0.0.0/0"
 }
 
 resource "aws_vpc_security_group_egress_rule" "nkp_tunnel_egress_all" {
+  
   security_group_id = aws_security_group.nkp_tunnel.id
 
-  ip_protocol    = "-1"
-  cidr_ipv4 = "0.0.0.0/0"
+  ip_protocol       = "-1"
+  cidr_ipv4         = "0.0.0.0/0"
 }
 
 data "aws_vpc" "default_vpc" {
@@ -145,10 +167,12 @@ data "aws_subnets" "default_public_subnet" {
   }
 }
 
+/*
 resource "aws_key_pair" "ssh_key" {
   key_name   = "terraform-key"
   public_key = "${var.ssh_pubkey}"
 }
+*/
 
 resource "aws_ec2_managed_prefix_list" "nutanix_networks" {
   name           = "Nutanix"

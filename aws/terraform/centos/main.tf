@@ -6,7 +6,7 @@
 variable "region" {
   description = "AWS region to deploy resources in"
   type        = string
-  # default   = "us-west-2"
+  # default   = "us-west"
 }
 
 # Fetch the latest Amazon Linux 2 AMI ID
