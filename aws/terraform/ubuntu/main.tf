@@ -106,10 +106,20 @@ resource "aws_vpc_security_group_ingress_rule" "nkp_tunnel_ssh" {
   from_port         = 22
   to_port           = 22
   ip_protocol       = "tcp"
-  cidr_ipv4         = "0.0.0.0/0"
 
-  # was here before...collides with above...
-  #prefix_list_id    = "${aws_ec2_managed_prefix_list.nutanix_networks.id}"
+  prefix_list_id    = "${aws_ec2_managed_prefix_list.nutanix_networks.id}"
+
+
+
+
+
+
+  # not allowed here..
+  #cidr_blocks       = var.allowed_subnet_cidrs # Using the list here  
+  # wants string for this only..
+  #cidr_ipv4          = var.allowed_subnet_cidrs
+  #cidr_ipv4         = "10.38.48.0/24,10.55.41.0/24,10.42.164.0/24,192.146.155.0/24"
+  #cidr_ipv4          = "0.0.0.0/0"
 
 }
 
@@ -152,19 +162,32 @@ resource "aws_key_pair" "ssh_key" {
 resource "aws_ec2_managed_prefix_list" "nutanix_networks" {
   name           = "Nutanix"
   address_family = "IPv4"
-  max_entries    = 3
+  max_entries    = 5
 
   entry {
     cidr        = "10.38.48.0/24"
-    description = "hpoc"
+    description = "hpoc-gpu"
   }
 
-  /*
+  entry {
+    cidr        = "10.38.48.84/32"
+    description = "hpoc-gpu-jumpbox"
+  }
+
+  entry {
+    cidr        = "10.55.41.0/24"
+    description = "hpoc-east"
+  }
+
+  entry {
+    cidr        = "10.42.164.0/24"
+    description = "ntx-vpn"
+  }
+
   entry {
     cidr        = "192.146.155.0/24"
-    description = "hpoc"
+    description = "isp-starlink"
   }
-  */
 
   tags = {
     owner = "${var.owner}"
