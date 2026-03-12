@@ -162,21 +162,16 @@ resource "aws_key_pair" "ssh_key" {
 resource "aws_ec2_managed_prefix_list" "nutanix_networks" {
   name           = "Nutanix"
   address_family = "IPv4"
-  max_entries    = 5
+  max_entries    = 6
 
   entry {
-    cidr        = "10.38.48.0/24"
-    description = "hpoc-gpu"
+    cidr        = "18.237.140.160/29"
+    description = "aws-us-west-2-connect"
   }
 
   entry {
-    cidr        = "10.38.48.84/32"
-    description = "hpoc-gpu-jumpbox"
-  }
-
-  entry {
-    cidr        = "10.55.41.0/24"
-    description = "hpoc-east"
+    cidr        = "192.146.154.0/24"
+    description = "hpoc-x"
   }
 
   entry {

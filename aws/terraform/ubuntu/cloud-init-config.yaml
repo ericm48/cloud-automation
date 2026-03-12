@@ -2,6 +2,15 @@
 fqdn: ubu-nkp-tunnel-em1
 hostname: ubu-nkp-tunnel-em1
 runcmd:
+
+  # Install some networking tools
+  - apt install -y net-tools
+  - apt install  -y inetutils-traceroute
+
+  # Lock this kernel version
+  - apt-mark hold linux-image-$(uname -r) linux-headers-$(uname -r)
+
+  # Setup ssh & Socat.
   - echo "GatewayPorts yes" >> /etc/ssh/sshd_config
   - systemctl restart sshd
   - apt install -y socat
