@@ -5,7 +5,7 @@ runcmd:
 
   # Install some networking tools
   - apt install -y net-tools
-  - apt install  -y inetutils-traceroute
+  - apt install -y inetutils-traceroute
 
   # Lock this kernel version
   - apt-mark hold linux-image-$(uname -r) linux-headers-$(uname -r)
