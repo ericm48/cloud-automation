@@ -162,7 +162,7 @@ resource "aws_key_pair" "ssh_key" {
 resource "aws_ec2_managed_prefix_list" "nutanix_networks" {
   name           = "Nutanix"
   address_family = "IPv4"
-  max_entries    = 6
+  max_entries    = 8
 
   entry {
     cidr        = "192.146.155.0/24"    
@@ -174,7 +174,7 @@ resource "aws_ec2_managed_prefix_list" "nutanix_networks" {
     description = "hpoc-phx"
   }
 
-  # 28-Apr-2026: Told egress is: 216.223.175.65
+  # 28-Apr-2026: Was told egress is: 216.223.175.65
   entry {
     cidr        = "216.223.175.0/24"
     description = "hpoc-dm3"
