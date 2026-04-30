@@ -50,10 +50,15 @@ variable "ssh_pubkey" {
   type        = string
 
   # Eric MAC:
-  #default      = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEfQoBYa+YTFJ5ijh3iBTKjD/zg2/M13QQbYpEV0SV2A"
+  #default    = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEfQoBYa+YTFJ5ijh3iBTKjD/zg2/M13QQbYpEV0SV2A"
 
   # GPU-JumpBox:
   default     = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOKjqORmfRZYOVUnp6K/SdCbryfYkJgb2+1dn6urAUUP" 
+
+  # West-JumpBox:
+
+  # PHX-HPOC:
+
 } 
 
 #
@@ -109,11 +114,6 @@ resource "aws_vpc_security_group_ingress_rule" "nkp_tunnel_ssh" {
 
   prefix_list_id    = "${aws_ec2_managed_prefix_list.nutanix_networks.id}"
 
-
-
-
-
-
   # not allowed here..
   #cidr_blocks       = var.allowed_subnet_cidrs # Using the list here  
   # wants string for this only..
@@ -165,23 +165,34 @@ resource "aws_ec2_managed_prefix_list" "nutanix_networks" {
   max_entries    = 6
 
   entry {
+    cidr        = "192.146.155.0/24"    
+    description = "Nutanix-VPN-Reno"
+  }
+
+  entry {
+    cidr        = "192.146.154.0/24"
+    description = "hpoc-phx"
+  }
+
+  # 28-Apr-2026: Told egress is: 216.223.175.65
+  entry {
+    cidr        = "216.223.175.0/24"
+    description = "hpoc-dm3"
+  }
+
+  entry {
     cidr        = "18.237.140.160/29"
     description = "aws-us-west-2-connect"
   }
 
   entry {
-    cidr        = "192.146.154.0/24"
-    description = "hpoc-x"
+    cidr        = "216.147.121.0/24"    
+    description = "StarLink1-CO"
   }
 
   entry {
-    cidr        = "10.42.164.0/24"
-    description = "ntx-vpn"
-  }
-
-  entry {
-    cidr        = "192.146.155.0/24"
-    description = "isp-starlink"
+    cidr        = "98.97.105.0/24"    
+    description = "StarLink2-CO"
   }
 
   tags = {
